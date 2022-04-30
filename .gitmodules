@@ -1,0 +1,8 @@
+[submodule "external/DomainBed"]
+	path = external/DomainBed
+	url = https://github.com/m-Just/DomainBed.git
+	ignore = dirty
+[submodule "external/wilds"]
+	path = external/wilds
+	url = https://github.com/p-lambda/wilds.git
+	ignore = dirty
