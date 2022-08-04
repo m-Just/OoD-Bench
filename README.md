@@ -2,7 +2,7 @@
 **OoD-Bench** is a benchmark for both datasets and algorithms of out-of-distribution generalization.
 It positions datasets along two dimensions of distribution shift: *diversity shift* and *correlation shift*, unifying the disjoint threads of research from the perspective of data distribution.
 OoD algorithms are then evaluated and compared on two groups of datasets, each dominanted by one kind of the distribution shift.
-See [our paper](https://arxiv.org/abs/2106.03721) (to appear in CVPR 2022 for **oral** presentation) for more details.
+See [our paper](https://openaccess.thecvf.com/content/CVPR2022/papers/Ye_OoD-Bench_Quantifying_and_Understanding_Two_Dimensions_of_Out-of-Distribution_Generalization_CVPR_2022_paper.pdf) (CVPR 2022 **oral**) for more details.
 
 This repository contains the code to produce the benchmark, which has two main components:
 - a framework for quantifying distribution shift that benchmarks the datasets, and
