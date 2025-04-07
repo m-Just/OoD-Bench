@@ -13,27 +13,6 @@ from scipy.stats import gaussian_kde
 from ood_bench import config, utils
 
 
-class gaussian_kde_(gaussian_kde):
-    """ A gaussian kde that is friendly to small samples. """
-    def _compute_covariance(self) -> None:
-        """Computes the covariance matrix for each Gaussian kernel using
-        covariance_factor().
-        """
-        self.factor = self.covariance_factor()
-        # Cache covariance and inverse covariance of the data
-        if not hasattr(self, '_data_inv_cov'):
-            self._data_covariance = np.atleast_2d(
-                np.cov(self.dataset, rowvar=1, bias=False, aweights=self.weights))
-            w, v = np.linalg.eigh(self._data_covariance)
-            # Set near-zero eigenvalues to a small number, avoiding singular covariance
-            # matrices when the sample do not span the whole feature space
-            w[np.where(abs(w) < 1e-9)[0]] = 0.01
-            self._data_inv_cov = np.linalg.inv(v @ np.diag(w) @ v.T)
-
-        self.covariance = self._data_covariance * self.factor**2
-        self.inv_cov = self._data_inv_cov / self.factor**2
-
-
 def compute_div(p: Sequence[float], q: Sequence[float], probs: Sequence[int],
                 eps_div: float) -> float:
     if not len(p) == len(q) == len(probs):
@@ -67,8 +46,8 @@ def compute_cor(y_p: np.ndarray, z_p: np.ndarray, y_q: np.ndarray, z_q: np.ndarr
             raise ValueError(f'Number of datapoints mismatch (y={y}): '
                              f'{indices_p.shape} != {indices_q.shape}')
         try:
-            kde_p = gaussian_kde_(z_p[indices_p].T)
-            kde_q = gaussian_kde_(z_q[indices_q].T)
+            kde_p = gaussian_kde(z_p[indices_p].T)
+            kde_q = gaussian_kde(z_q[indices_q].T)
             p_given_y = kde_p(points)
             q_given_y = kde_q(points)
         except (np.linalg.LinAlgError, ValueError) as exception:
