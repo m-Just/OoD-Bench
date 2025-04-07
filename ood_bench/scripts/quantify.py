@@ -14,20 +14,24 @@ from ood_bench import config, utils
 
 
 def compute_div(p: Sequence[float], q: Sequence[float], probs: Sequence[int],
-                eps_div: float) -> float:
+                eps_div: float, legacy_mode: bool = False) -> float:
     if not len(p) == len(q) == len(probs):
         raise ValueError
     div = 0
     for i in range(len(probs)):
         if p[i] < eps_div or q[i] < eps_div:
-            div += abs(p[i] - q[i]) / probs[i]
+            if legacy_mode:
+                div += abs(p[i] - q[i]) / probs[i]
+            else:
+                div += (np.sqrt(p[i]) - np.sqrt(q[i])) ** 2 / probs[i]
     div /= len(probs) * 2
     return div
 
 
 def compute_cor(y_p: np.ndarray, z_p: np.ndarray, y_q: np.ndarray, z_q: np.ndarray,
                 p: Sequence[float], q: Sequence[float], probs: Sequence[int],
-                points: np.ndarray, eps_cor: float, strict: bool = False) -> float:
+                points: np.ndarray, eps_cor: float, strict: bool = False,
+                legacy_mode: bool = False) -> float:
     if not len(p) == len(q) == len(probs):
         raise ValueError
     y_p_unique, y_q_unique = map(np.unique, (y_p, y_q))
@@ -62,8 +66,15 @@ def compute_cor(y_p: np.ndarray, z_p: np.ndarray, y_q: np.ndarray, z_q: np.ndarr
         
         for j in range(len(probs)):
             if p[j] > eps_cor and q[j] > eps_cor:
-                integrand = abs(p_given_y[j] * np.sqrt(q[j] / p[j])
-                              - q_given_y[j] * np.sqrt(p[j] / q[j]))
+                if legacy_mode:
+                    integrand = abs(p_given_y[j] * np.sqrt(q[j]) / np.sqrt(p[j])
+                                  - q_given_y[j] * np.sqrt(p[j]) / np.sqrt(q[j]))
+                else:
+                    integrand = (
+                        p_given_y[j] * np.sqrt(q[j]) / np.sqrt(p[j])
+                      + q_given_y[j] * np.sqrt(p[j]) / np.sqrt(q[j])
+                      - 2 * np.sqrt(p_given_y[j]) * np.sqrt(q_given_y[j])
+                    )
                 cor_j = integrand / probs[j]
             else:
                 integrand = cor_j = 0
@@ -117,7 +128,7 @@ if __name__ == '__main__':
 
     if args.mode in ('both', 'div'):
         print('computing diversity shift')
-        div = compute_div(p, q, probs, args.eps_div)
+        div = compute_div(p, q, probs, args.eps_div, legacy_mode=args.legacy_mode)
         if np.isnan(div) or np.isinf(div):
             raise RuntimeError
         print(f'div: {div}')
@@ -127,7 +138,7 @@ if __name__ == '__main__':
     if args.mode in ('both', 'cor'):
         print('computing correlation shift')
         cor = compute_cor(y_p, z_p, y_q, z_q, p, q, probs, points, args.eps_cor,
-                          strict=args.strict)
+                          strict=args.strict, legacy_mode=args.legacy_mode)
         if np.isnan(cor) or np.isinf(cor):
             raise RuntimeError
         print(f'cor: {cor}')

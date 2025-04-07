@@ -131,6 +131,8 @@ def add_quant_arguments(parser: ParserOrGroup, export: bool = False) -> None:
                         help='sample size of importance sampling')
     parser.add_argument('--strict', action='store_true', help='raise error when KDE '
                         'fails for insufficient sample')
+    parser.add_argument('--legacy_mode', action='store_true', help='use the original '
+                        'ood-bench quantification formulas')
 
     
 def add_calib_arguments(parser: ParserOrGroup, export: bool = False) -> None:
