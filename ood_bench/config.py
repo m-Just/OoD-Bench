@@ -61,6 +61,7 @@ def add_training_arguments(parser: ParserOrGroup, export: bool = False) -> None:
                              'zoo (if available) by passing "auto"')
     parser.add_argument('--dim_z', type=int, default=8, help='dimension of the feature '
                         'space in which feature densities are estimated')
+    parser.add_argument('--freeze_backbone', action='store_true')
     
     # Optimization hyperparameters
     # Environment classifiers are trained with SGD and Stochastic Weight Averaging (SWA)

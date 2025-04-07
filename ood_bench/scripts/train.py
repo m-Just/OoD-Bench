@@ -120,7 +120,7 @@ if __name__ == '__main__':
     
     backbone = get_backbone(args.backbone, dataset.input_shape,
                             args.pretrained_model_path)
-    model = EnvClassifier(backbone, dataset.num_classes, args.dim_z, 2)
+    model = EnvClassifier(backbone, dataset.num_classes, args.dim_z, 2, args.freeze_backbone)
     model = model.to(device)
 
     best_dict = {'acc': 0, 'step': -1, 'state': None}

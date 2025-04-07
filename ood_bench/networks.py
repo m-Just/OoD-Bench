@@ -106,12 +106,15 @@ class ResNet(Backbone):
     
 class EnvClassifier(nn.Module):
     def __init__(self, backbone: nn.Module, class_dim: int, logits_dim: int,
-                 output_dim: int) -> None:
+                 output_dim: int, freeze_backbone: bool = False) -> None:
         super(EnvClassifier, self).__init__()
         self.class_dim = class_dim
         self.logits_dim = logits_dim
         self.output_dim = output_dim
         self.backbone = backbone
+        if freeze_backbone:
+            for p in self.backbone.parameters():
+                p.requires_grad_(False)
         
         self.fc = nn.Linear(backbone.hdim, logits_dim)
         self.g = nn.Sequential(self.backbone, self.fc)
