@@ -123,7 +123,7 @@ def add_quant_arguments(parser: ParserOrGroup, export: bool = False) -> None:
         
     parser.add_argument('--mode', type=str, choices=['both', 'div', 'cor'],
                         default='both', help='quantify both kinds of shift or either '
-                       'one of them')
+                        'one of them')
     parser.add_argument('--eps_div', type=float, default=1e-12,
                         help='epsilon threshold for estimating diversity shift')
     parser.add_argument('--eps_cor', type=float, default=5e-4,

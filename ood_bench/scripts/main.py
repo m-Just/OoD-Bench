@@ -147,7 +147,8 @@ if __name__ == '__main__':
             print(f'trial {i+1}/{len(trials)} starts')
             trial.start(0)
     
-    args_dict = {'output_dirs': args.output_dir}
-    cmd = utils.compose_command('ood_bench.scripts.summarize', args_dict, None)
-    print('executing command:', cmd)
-    subprocess.run(cmd, shell=True, check=True)
+    if not args.skip_quant:
+        args_dict = {'output_dirs': args.output_dir}
+        cmd = utils.compose_command('ood_bench.scripts.summarize', args_dict, None)
+        print('executing command:', cmd)
+        subprocess.run(cmd, shell=True, check=True)
