@@ -178,9 +178,9 @@ if __name__ == '__main__':
             print(f'validation accuracy: {val_acc:.4f}')
             if epoch > args.swa_start:
                 update_swa_bn(swa_model, zip(in_dataloader_p, in_dataloader_q), device)
-                val_acc = evaluate(swa_model, zip(out_dataloader_p, out_dataloader_q),
-                                   device)
-                print(f'validation accuracy: {val_acc:.4f} (swa)')
+                swa_val_acc = evaluate(swa_model, zip(out_dataloader_p, out_dataloader_q),
+                                       device)
+                print(f'validation accuracy: {swa_val_acc:.4f} (swa)')
             
     state_dict = swa_model.state_dict()
     del state_dict['n_averaged']
@@ -189,3 +189,11 @@ if __name__ == '__main__':
             state_dict[name[7:]] = state_dict[name]
             del state_dict[name]
     torch.save(state_dict, str(save_dir.joinpath('model.pth')))
+
+    with save_dir.joinpath('result.json').open('w') as f:
+        json.dump({
+            'training loss': training_loss.ema,
+            'training acc': training_acc.ema,
+            'validation acc': val_acc,
+            'validation acc (swa)': swa_val_acc
+        }, f)

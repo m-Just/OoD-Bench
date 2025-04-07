@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 from typing import Iterable, Union
+from collections import defaultdict
 
 import numpy as np
 
@@ -11,30 +12,32 @@ def summarize_trials(output_dir: Union[Path, str]) -> dict:
     if not result_paths:
         print(f'unable to find any completed trial under {output_dir}')
         return
-    divs = np.zeros(len(result_paths), dtype=np.float32)
-    cors = np.zeros(len(result_paths), dtype=np.float32)
+
+    result_all = defaultdict(list)
     for i, result_path in enumerate(result_paths):
         with result_path.open('r') as f:
             result = json.load(f)
-        divs[i] = result['div']
-        cors[i] = result['cor']
-    print(f'Summary for trials under {output_dir}')
-    print(f'Result averaged over {len(result_paths)} trial(s):')
-    print(f'div: {divs.mean():.4f} +/- {divs.std():.4f}')
-    print(f'cor: {cors.mean():.4f} +/- {cors.std():.4f}')
+        for name, value in result.items():
+            result_all[name].append(value)
+
     summary = {
         'completed_trials': [path.parent.name for path in result_paths],
-        'result': {
-            'div': {'mean': float(divs.mean()), 'std': float(divs.std())},
-            'cor': {'mean': float(cors.mean()), 'std': float(cors.std())},
-        }
+        'result': {}
     }
+    for name, values in result_all.items():
+        arr = np.array(values, dtype=np.float32)
+        summary['result'][name] = {'mean': float(arr.mean()), 'std': float(arr.std())}
+
+    print(f'Summary for trials under {output_dir}')
+    print(f'Result averaged over {len(result_paths)} trial(s):')
+    for name, stats in summary['result'].items():
+        print(f"- {name}: {stats['mean']:.4f} +/- {stats['std']:.4f}")
     with Path(output_dir, 'summary.json').open('w') as f:
         json.dump(summary, f)
     return summary
 
 
-def summarize_sets(output_dirs: Iterable[Union[Path, str]]) -> dict:
+def summarize_sets_div_and_cor(output_dirs: Iterable[Union[Path, str]]) -> dict:
     div_avgs, cor_avgs = [], []
     div_stds, cor_stds = [], []
     n_trials = []
@@ -67,4 +70,4 @@ if __name__ == '__main__':
     if len(args.output_dirs) == 1:
         summarize_trials(args.output_dirs[0])
     else:
-        summarize_sets(args.output_dirs)
+        summarize_sets_div_and_cor(args.output_dirs)
