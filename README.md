@@ -8,15 +8,26 @@ This repository contains the code to produce the benchmark, which has two main c
 - a framework for quantifying distribution shift that benchmarks the datasets, and
 - a modified version of [DomainBed](https://github.com/facebookresearch/DomainBed) that benchmarks the algorithms.
 
-## Environment requirements
+## What's new
+We are extending our work to OoD-Bench+ with many exciting updates:
+- **A new quantification formula for correlation shift.** The sum of diversity and correlation shift now captures the squared Hellinger distance between any two joint distributions of the target variable and the non-causal feature variable. You can still use the old quantification formula by passing `--legacy_mode` to the quantification script.
+- **Improved numerical stability for the quantification of correlation shift under very small sample size.** Now, classes with too few samples are all ignored with warning. For ImageNet-V2, which is of extremely small sample size of each class, we merge the 1000 classes into 400 super-classes following the wordnet synsets hierarchy. This gives us a more accurate estimation of correlation shift between ImageNet and ImageNet-V2.
+- **Quantification results on two additional datasets: fMoW-WILDS and SVIRO.**
+- More updates are coming soon.
+
+## Setup
+### Environment requirements
 - Python 3.6 or above
-- The packages listed in `requirements.txt`. You can install them via `pip install -r requirements.txt`. Package `torch_scatter` may require a [manual installation](https://github.com/rusty1s/pytorch_scatter#installation)
-- Submodules are added to the path:
+- The packages listed in `requirements.txt`. You can install them via `pip install -r requirements.txt`.
+
+### External packages
+Clone submodules and add them to `PYTHONPATH`:
 ```sh
+cd OoD-Bench
+git submodule update --init --recursive
 export PYTHONPATH="$PYTHONPATH:$(pwd)/external/DomainBed/"
 export PYTHONPATH="$PYTHONPATH:$(pwd)/external/wilds/"
 ```
-
 ## Data preparation
 Please follow [this instruction](data/README.md).
 
@@ -44,8 +55,29 @@ These two optional arguments are also useful:
 - `--parallel`: utilize multiple GPUs to conduct the trials in parallel. The maximum number of parallel trials is the number of visible GPUs which can be controlled by setting `CUDA_VISIBLE_DEVICES`.
 - `--calibrate`: calibrate the thresholds `eps_div` and `eps_cor` so that the estimated diversity and correlation shift are ensured to be within a range close to 0 under i.i.d. condition.
 
-### Results
+### OoD-Bench+ results
 The following results are produced by the scripts under [`ood_bench/examples`](ood_bench/examples), all being automatically calibrated.
+
+| Dataset                | Div. shift      | Cor. shift      |
+|------------------------|-----------------|-----------------|
+| PACS                   | 0.66 ± 0.05*    | 0.08 ± 0.03*    |
+| Office-Home            | 0.07 ± 0.01*    | 0.07 ± 0.03*    |
+| Terra Incognita        | 1.00 ± 0.06*    | 0.00 ± 0.00*    |
+| WILDS-Camelyon         | 0.96 ± 0.19*    | 0.00 ± 0.00*    |
+| DomainNet              | 0.37 ± 0.03     | 0.25 ± 0.04     |
+| Colored MNIST          | 0.00 ± 0.00     | 0.43 ± 0.03     |
+| CelebA                 | 0.01 ± 0.00     | 0.17 ± 0.06     |
+| NICO                   | 0.02 ± 0.02     | 0.20 ± 0.10     |
+| ImageNet-A †           | 0.04 ± 0.01     | 0.03 ± 0.03     |
+| ImageNet-R †           | 0.10 ± 0.02     | 0.18 ± 0.05     |
+| ImageNet-V2-Super400 † | 0.01 ± 0.00     | 0.06 ± 0.02     |
+| fMoW-WILDS             | 0.21 ± 0.03     | 0.09 ± 0.02     |
+| SVIRO                  | 0.87 ± 0.09     | 0.00 ± 0.00     |
+
+<small>\* [averaged](https://github.com/m-Just/OoD-Bench/blob/2140093fee982b19f122de2f198ec5831442daad/ood_bench/scripts/summarize.py#L37) over all leave-out-domain-out splits&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;† with respect to the original ImageNet</small>
+
+### Original OoD-Bench results
+These results can be obtained by setting `--legacy_mode` in the scripts under [`ood_bench/examples`](ood_bench/examples).
 
 | Dataset           | Diversity shift   | Correlation shift |
 | ----------------- | ----------------- | ----------------- |
@@ -60,8 +92,6 @@ The following results are produced by the scripts under [`ood_bench/examples`](o
 | ImageNet-A †      | 0.0435 ± 0.0123   | 0.0222 ± 0.0192   |
 | ImageNet-R †      | 0.1024 ± 0.0188   | 0.1180 ± 0.0311   |
 | ImageNet-V2 †     | 0.0079 ± 0.0017   | 0.2362 ± 0.0607   |
-
-<small>\* [averaged](https://github.com/m-Just/OoD-Bench/blob/2140093fee982b19f122de2f198ec5831442daad/ood_bench/scripts/summarize.py#L37) over all leave-out-domain-out splits&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;† with respect to the original ImageNet</small>
 
 **Note:** there is some difference between the results shown above and those reported in our paper mainly because we reworked the original implementation to ease public use and to improve quantification stability.
 One of the main improvements is the use of calibration.
