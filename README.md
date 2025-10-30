@@ -9,11 +9,10 @@ This repository contains the code to produce the benchmark, which has two main c
 - a modified version of [DomainBed](https://github.com/facebookresearch/DomainBed) that benchmarks the algorithms.
 
 ## What's new
-We are extending our work to OoD-Bench+ with many exciting updates:
+**OoD-Bench+** is accepted by T-PAMI with many exciting updates:
 - **A new quantification formula for correlation shift.** The sum of diversity and correlation shift now captures the squared Hellinger distance between any two joint distributions of the target variable and the non-causal feature variable. You can still use the old quantification formula by passing `--legacy_mode` to the quantification script.
 - **Improved numerical stability for the quantification of correlation shift under very small sample size.** Now, classes with too few samples are all ignored with warning. For ImageNet-V2, which is of extremely small sample size of each class, we merge the 1000 classes into 400 super-classes following the wordnet synsets hierarchy. This gives us a more accurate estimation of correlation shift between ImageNet and ImageNet-V2.
 - **Quantification results on two additional datasets: fMoW-WILDS and SVIRO.**
-- More updates are coming soon.
 
 ## Setup
 ### Environment requirements
@@ -153,12 +152,21 @@ class MyBackbone(Backbone):
 Please refer to [this repository](https://github.com/m-Just/DomainBed?organization=m-Just&organization=m-Just).
 
 ## Citing
-If you find the code useful or find our paper relevant to your research, please consider citing:
+If you find the code useful or find our papers relevant to your research, please consider citing:
 ```
 @inproceedings{ye2022ood,
     title={OoD-Bench: Quantifying and Understanding Two Dimensions of Out-of-Distribution Generalization},
     author={Ye, Nanyang and Li, Kaican and Bai, Haoyue and Yu, Runpeng and Hong, Lanqing and Zhou, Fengwei and Li, Zhenguo and Zhu, Jun},
     booktitle={CVPR},
     year={2022}
+}
+```
+```
+@article{ye2025ood,
+  title={OoDBench+: Quantifying and Understanding Two Dimensions of Out-of-Distribution Generalization},
+  author={Ye, Nanyang and Li, Kaican and Wu, Fan and Bai, Haoyue and Yu, Runpeng and Hong, Lanqing and Zhou, Fengwei and Li, Zhenguo and Zhu, Jun and Wang, Xinbing and Zhou, Chenghu},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2025},
+  publisher={IEEE}
 }
 ```
